@@ -1,0 +1,27 @@
+# Roblox specific
+*.rbxl
+*.rbxm
+*.rbxlx
+
+# Compiled scripts
+*.luac
+
+# Roblox Studio temp files
+*.autosave
+*.rbxl.temp
+*.rbxm.temp
+
+# Generated files
+workspace.xml
+*.universe
+*.user
+
+# Development environment
+/.vscode
+/.idea
+
+# Dependency directories (optional)
+/PluginPack
+/ScriptPack
+/PluginGeneratedScripts
+/ScriptGeneratedScripts
