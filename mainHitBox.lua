@@ -42,6 +42,39 @@ local function CheckFilteredTable(self, Humanoid, instance)
 	return SetFilter
 end
 
+local function FindAllHumanoids(self)
+	local Clear = false
+	local GetPartsInBox = CreateHitBox(self)
+
+	local AllHumanoids = {}
+
+	for _, instance in GetPartsInBox do
+		local Humanoid = instance.Parent:FindFirstChild("Humanoid")
+
+		if CheckFilteredTable(self, Humanoid, instance) then continue end
+
+		if not Humanoid then continue end  
+
+		if #AllHumanoids == 0 then 
+			table.insert(AllHumanoids, Humanoid)
+		else
+			for _, humanoids in AllHumanoids do
+				if humanoids ~= Humanoid then continue end
+				Clear = true
+				break
+			end
+
+			if not Clear then
+				table.insert(AllHumanoids, Humanoid)
+			end
+
+			Clear = false
+		end
+	end
+
+	return AllHumanoids
+end		
+
 function HitBox.new(tool, Size, BoxCFrame)
 	if not tool then	if not Size and not BoxCFrame then return end end
 
@@ -53,7 +86,7 @@ function HitBox.new(tool, Size, BoxCFrame)
 		_tool = tool,
 		_FilterType = "Exclude",
 		OnHitEvent = Instance.new("BindableEvent", game.ReplicatedStorage),
-		_FilterTable = {}
+		_FilterTable = {},
 	}, HitBox)
 
 	return metaTable
@@ -64,9 +97,14 @@ function HitBox:GetTouchingParts()
 end
 
 function HitBox:OnHit()
-	pcall(function()
-		self.OnHitEvent:Fire(CreateHitBox(self))
-	end)
+	local ContactParts = CreateHitBox(self)
+	local AllHumanoids = FindAllHumanoids(self)
+	
+	if AllHumanoids or ContactParts then
+		pcall(function()
+			self.OnHitEvent:Fire(ContactParts, AllHumanoids)
+		end)
+	end
 end
 
 function HitBox:SetFilterType(FilterType)
@@ -74,45 +112,12 @@ function HitBox:SetFilterType(FilterType)
 end
 
 function HitBox:GetAllHumanoids(WaitForDelay)
-	local GetPartsInBox = CreateHitBox(self)
-	local Clear = false
-	local SetFilter = false
-	local AllHumanoids = {}
-
-	local function FindAllHumanoids()
-		for _, instance in GetPartsInBox do
-			local Humanoid = instance.Parent:FindFirstChild("Humanoid")
-
-			if CheckFilteredTable(self, Humanoid, instance) then continue end
-
-			if not Humanoid then continue end  
-
-			if #AllHumanoids == 0 then 
-				table.insert(AllHumanoids, Humanoid)
-			else
-				for _, humanoids in AllHumanoids do
-					if humanoids ~= Humanoid then continue end
-					Clear = true
-					break
-				end
-
-				if not Clear then
-					table.insert(AllHumanoids, Humanoid)
-				end
-
-				Clear = false
-			end
-		end
-
-		return AllHumanoids
-	end		
-
 	if WaitForDelay then
 		repeat task.wait() until self._canAttack 
 
-		return FindAllHumanoids()
+		return FindAllHumanoids(self)
 	else
-		return FindAllHumanoids()
+		return FindAllHumanoids(self)
 	end
 end
 
@@ -189,5 +194,6 @@ function HitBox:CheckFilters(humanoids)
 
 	return clear
 end
+
 
 return HitBox
