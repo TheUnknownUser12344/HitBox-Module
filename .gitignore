@@ -19,9 +19,3 @@ workspace.xml
 # Development environment
 /.vscode
 /.idea
-
-# Dependency directories (optional)
-/PluginPack
-/ScriptPack
-/PluginGeneratedScripts
-/ScriptGeneratedScripts
