@@ -82,7 +82,7 @@ local function FindAllHumanoids(self):{}
 			end
 
 			if not Clear then
-				--If Not Found The Insert It Into The Humanoids Table
+				--If Not Found Then Insert It Into The Humanoids Table
 				table.insert(AllHumanoids, Humanoid)
 			end
 
